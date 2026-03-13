@@ -551,6 +551,26 @@ to   { opacity: 1; }
       </div>
     </div>
 
+    <div class="section-label" style="padding-top:6px;">Ventes</div>
+
+    <div class="card">
+      <div class="card-title" style="margin-bottom:10px;">💰 Prix de vente par défaut (€)</div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <input type="number" class="field-input" id="prix-defaut-input" placeholder="Ex: 35" style="flex:1; margin:0;"
+          oninput="savePrixDefaut(this.value)">
+        <span style="color:var(--text-muted); font-size:14px;">€</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="margin-bottom:10px;">⭐ Qualités</div>
+      <div class="tag-list" id="tags-qualites"></div>
+      <div class="add-tag-row">
+        <input class="field-input" id="new-qualite" placeholder="Ex: Excellente" style="flex:1">
+        <button class="btn-add" onclick="addTag('qualites','new-qualite','tags-qualites')">+</button>
+      </div>
+    </div>
+
     <div class="section-label" style="padding-top:6px;">Sauvegarde & Restauration</div>
     <div class="card" style="margin-bottom:14px;">
       <div style="font-size:13px; color:var(--text-muted); margin-bottom:12px; line-height:1.5;">
@@ -573,25 +593,6 @@ to   { opacity: 1; }
       <button class="btn btn-danger" onclick="showConfirm({icon:'🗑️',title:'Réinitialiser toutes les données ?',message:'Toutes vos productions et paramètres seront supprimés. Cette action est irréversible.',okLabel:'Réinitialiser',onConfirm:resetAll})">🗑 Réinitialiser toutes les données</button>
     </div>
 
-    <div class="section-label">Ventes</div>
-
-    <div class="card">
-      <div class="card-title" style="margin-bottom:10px;">💰 Prix de vente par défaut (€)</div>
-      <div style="display:flex; gap:8px; align-items:center;">
-        <input type="number" class="field-input" id="prix-defaut-input" placeholder="Ex: 35" style="flex:1; margin:0;"
-          oninput="savePrixDefaut(this.value)">
-        <span style="color:var(--text-muted); font-size:14px;">€</span>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title" style="margin-bottom:10px;">⭐ Qualités</div>
-      <div class="tag-list" id="tags-qualites"></div>
-      <div class="add-tag-row">
-        <input class="field-input" id="new-qualite" placeholder="Ex: Excellente" style="flex:1">
-        <button class="btn-add" onclick="addTag('qualites','new-qualite','tags-qualites')">+</button>
-      </div>
-    </div>
   </div>
 
 </div><!-- /main -->
