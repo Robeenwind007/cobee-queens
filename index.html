@@ -17,6 +17,7 @@
       navigator.serviceWorker.register('sw.js').catch(() => {});
     });
   }
+
 </script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -47,7 +48,7 @@
     background: var(--dark);
     color: var(--text);
     min-height: 100vh;
-    overflow-x: hidden;
+    overflow: hidden;
     position: relative;
   }
 
@@ -96,7 +97,7 @@
   .tab-btn.active .tab-icon { transform: scale(1.15); }
 
   /* ── MAIN CONTENT ── */
-  .main { padding: 76px 0 80px; position: relative; z-index: 1; }
+  .main { padding: 76px 0 100px; position: relative; z-index: 1; overflow-y: auto; height: 100vh; }
   .screen { display: none; }
   .screen.active { display: block; }
 
@@ -251,6 +252,26 @@
 
   /* ── STATS ── */
   .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 14px 14px; }
+
+  .year-pill {
+    background: transparent;
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .year-pill.active {
+    background: var(--amber);
+    border-color: var(--amber);
+    color: var(--dark);
+  }
   .stat-card {
     background: var(--card); border: 1px solid var(--card-border);
     border-radius: var(--radius); padding: 16px; text-align: center;
@@ -446,13 +467,173 @@
 to   { opacity: 1; }
   }
 
+
+  /* ── SEARCH SCREEN ── */
+
+  .search-input-wrap {
+    display: flex;
+    gap: 8px;
+    margin: 10px 14px 20px;
+    align-items: center;
+  }
+
+  .search-year-prefix {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--amber-light);
+    white-space: nowrap;
+    padding: 0 2px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .search-year-select {
+    background: var(--card);
+    border: 1.5px solid var(--amber);
+    border-radius: var(--radius-sm);
+    padding: 12px 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--amber-light);
+    outline: none;
+    cursor: pointer;
+    text-align: center;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 76px;
+  }
+
+  .search-year-select:focus {
+    border-color: var(--amber-light);
+    background: rgba(212,137,10,0.08);
+  }
+
+  .search-year-select option {
+    background: var(--dark2);
+    color: var(--text);
+    font-size: 16px;
+  }
+
+  .search-num-input {
+    flex: 1;
+    background: var(--card);
+    border: 1.5px solid var(--amber);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--amber-light);
+    text-align: center;
+    outline: none;
+    letter-spacing: 0.08em;
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
+  }
+
+  .search-num-input::placeholder {
+    color: var(--text-muted);
+    font-size: 20px;
+    letter-spacing: 0;
+  }
+
+  .search-num-input:focus {
+    border-color: var(--amber-light);
+    background: rgba(212,137,10,0.08);
+  }
+
+  .search-btn {
+    background: linear-gradient(135deg, var(--amber-light), var(--amber));
+    color: var(--dark);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 14px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+
+  .search-btn:active { transform: scale(0.97); opacity: 0.9; }
+
+  .search-result { margin-top: 4px; padding-bottom: 20px; }
+
+  .search-not-found {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--text-muted);
+    font-size: 15px;
+  }
+
+  .search-not-found .nf-icon { font-size: 36px; margin-bottom: 10px; }
+
+  .search-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin: 18px 0 8px;
+    padding-left: 2px;
+  }
+
+  .search-reine-badge {
+    display: inline-block;
+    background: var(--amber-glow);
+    border: 1px solid var(--amber);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--amber-light);
+    margin-bottom: 14px;
+  }
+
+  .search-field-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(212,137,10,0.08);
+    gap: 10px;
+  }
+
+  .search-field-row:last-child { border-bottom: none; }
+
+  .search-field-lbl {
+    font-size: 12px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+
+  .search-field-val {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    text-align: right;
+  }
+
+  .search-field-val.highlight {
+    color: var(--amber-light);
+  }
+
+  .search-no-vente {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-style: italic;
+    padding: 10px 0;
+  }
+
 </style>
 </head>
 <body>
 
 <!-- SPLASH SCREEN -->
 <div id="splash">
-  <div class="splash-version">v 1.0</div>
+  <div class="splash-version">v 1.1</div>
 
   <div class="splash-logo-wrap">
     <div class="splash-logo-glow"></div>
@@ -487,7 +668,10 @@ to   { opacity: 1; }
 
   <!-- SCREEN: HISTORIQUE -->
   <div class="screen active" id="screen-history">
-    <div class="section-label">Productions en cours & passées</div>
+    <div class="section-label" style="display:flex; justify-content:space-between; align-items:center; padding-right:14px;">
+      <span>Productions en cours & passées</span>
+      <button onclick="openNewForm()" style="background:var(--amber);color:var(--dark);border:none;border-radius:20px;padding:6px 16px;font-weight:700;font-size:14px;cursor:pointer;">＋ Nouveau greffage</button>
+    </div>
     <div id="history-list"></div>
   </div>
 
@@ -502,7 +686,10 @@ to   { opacity: 1; }
 
   <!-- SCREEN: STATS -->
   <div class="screen" id="screen-stats">
-    <div class="section-label">Vue d'ensemble</div>
+    <div class="section-label" style="display:flex; justify-content:space-between; align-items:center; padding-right:14px;">
+      <span>Vue d'ensemble</span>
+      <div id="stats-year-filter" style="display:flex; gap:6px; flex-wrap:wrap;"></div>
+    </div>
     <div class="stats-grid" id="stats-grid"></div>
     <div class="section-label">Performances par souche ♀</div>
     <div id="stats-detail" style="padding: 0 14px 14px;"></div>
@@ -595,12 +782,40 @@ to   { opacity: 1; }
 
   </div>
 
+
+  <!-- SCREEN: RECHERCHE -->
+  <div class="screen" id="screen-search">
+    <div style="padding: 8px 14px 4px; font-family:'Playfair Display',serif; font-size:18px; color:var(--amber-light);">♛ Recherche de reine</div>
+
+    <div class="search-input-wrap">
+      <select class="search-year-select" id="search-year" onchange="onSearchInput()"></select>
+      <span class="search-year-prefix">-</span>
+      <input
+        class="search-num-input"
+        id="search-num"
+        type="number"
+        min="1"
+        max="999"
+        placeholder="N°"
+        oninput="onSearchInput()"
+        onkeydown="if(event.key==='Enter') doSearch()"
+      >
+      <button class="search-btn" onclick="doSearch()">Chercher</button>
+    </div>
+
+    <div id="search-result" class="search-result"></div>
+  </div>
+
 </div><!-- /main -->
 
 <!-- BOTTOM TABS -->
+
 <div class="bottom-tabs">
   <button class="tab-btn active" id="tab-history" onclick="showScreen('history')">
     <span class="tab-icon">📋</span>Productions
+  </button>
+  <button class="tab-btn" id="tab-search" onclick="showScreen('search')">
+    <span class="tab-icon">🔍</span>Recherche
   </button>
   <button class="tab-btn" id="tab-ventes" onclick="showScreen('ventes')">
     <span class="tab-icon">💰</span>Ventes
@@ -963,6 +1178,7 @@ let DB = initDB();
 let editingId = null;
 let currentDetailId = null;
 let selectedQueens = new Set();
+let selectedStatsYear = 'all';
 
 // ══════════════════════════════════════════════════
 // SCREENS
@@ -982,6 +1198,10 @@ function showScreen(name) {
   if(name === 'stats') renderStats();
   if(name === 'ventes') renderVentes();
   if(name === 'settings') renderSettings();
+  if(name === 'search') initSearchScreen();
+  // Masquer le + sur les écrans qui ont leur propre bouton ou pas d'action
+  const hideAdd = ['ventes', 'stats', 'search', 'settings'];
+  document.getElementById('nav-add-btn').style.visibility = hideAdd.includes(name) ? 'hidden' : 'visible';
 }
 
 // ══════════════════════════════════════════════════
@@ -1316,9 +1536,41 @@ function saveRecord() {
 // ══════════════════════════════════════════════════
 // STATS
 // ══════════════════════════════════════════════════
+function setStatsYear(y) {
+  selectedStatsYear = y;
+  renderStats();
+}
+
 function renderStats() {
-  const prods = DB.productions;
-  const ventes = DB.ventes || [];
+  // Build year filter pills
+  const filterEl = document.getElementById('stats-year-filter');
+  const allYears = new Set();
+  (DB.productions || []).forEach(p => {
+    if(p.dateGreffage) allYears.add(p.dateGreffage.split('-')[0]);
+  });
+  (DB.ventes || []).forEach(v => {
+    if(v.date) allYears.add(v.date.split('-')[0]);
+  });
+  const sortedYears = [...allYears].sort((a,b) => b - a);
+
+  // If selectedStatsYear no longer exists, reset to 'all'
+  if(selectedStatsYear !== 'all' && !sortedYears.includes(selectedStatsYear)) selectedStatsYear = 'all';
+
+  filterEl.innerHTML = ['all', ...sortedYears].map(y => {
+    const label = y === 'all' ? 'Toutes' : y;
+    const active = selectedStatsYear === y ? 'active' : '';
+    return `<button class="year-pill ${active}" onclick="setStatsYear('${y}')">${label}</button>`;
+  }).join('');
+
+  // Filter data by selected year
+  const prods = (DB.productions || []).filter(p => {
+    if(selectedStatsYear === 'all') return true;
+    return (p.dateGreffage || '').startsWith(selectedStatsYear);
+  });
+  const ventes = (DB.ventes || []).filter(v => {
+    if(selectedStatsYear === 'all') return true;
+    return (v.date || '').startsWith(selectedStatsYear);
+  });
 
   const totalImpl = prods.reduce((s,p) => s + (p.implantees||0), 0);
   const totalCouv = prods.reduce((s,p) => s + (p.couveuse||0), 0);
@@ -1387,7 +1639,7 @@ function renderStats() {
   // Stats par qualité avec détail par souche ♀
   // Construire un map reine → souche depuis les productions
   const reineSouche = {};
-  DB.productions.forEach(p => {
+  (DB.productions||[]).forEach(p => {
     (p.queens || []).forEach(q => { reineSouche[q] = p.souche; });
   });
 
@@ -1761,6 +2013,163 @@ function savePrixDefaut(val) {
 // INIT
 // ══════════════════════════════════════════════════
 renderHistory();
+
+// ══════════════════════════════════════════════════
+// RECHERCHE DE REINE
+// ══════════════════════════════════════════════════
+
+function initSearchScreen() {
+  const sel = document.getElementById('search-year');
+  const currentYear = parseInt(new Date().getFullYear().toString().slice(-2));
+
+  // Collect years that actually have data (productions or ventes)
+  const yearsWithData = new Set();
+  (DB.productions || []).forEach(p => {
+    (p.queens || []).forEach(q => {
+      const y = q.split('-')[0];
+      if(y) yearsWithData.add(y);
+    });
+  });
+  (DB.ventes || []).forEach(v => {
+    if(v.reine) {
+      const y = v.reine.split('-')[0];
+      if(y) yearsWithData.add(y);
+    }
+  });
+
+  // Always include current year (even if no data yet)
+  yearsWithData.add(String(currentYear).padStart(2, '0'));
+
+  // Sort descending
+  const sorted = [...yearsWithData].sort((a, b) => b - a);
+
+  sel.innerHTML = '';
+  sorted.forEach(yy => {
+    const opt = document.createElement('option');
+    opt.value = yy;
+    opt.textContent = yy;
+    if(yy === YEAR) opt.selected = true;
+    sel.appendChild(opt);
+  });
+
+  document.getElementById('search-num').value = '';
+  document.getElementById('search-result').innerHTML = '';
+}
+
+function onSearchInput() {
+  const val = document.getElementById('search-num').value.trim();
+  if(val.length >= 1) doSearch();
+}
+
+function doSearch() {
+  const val = document.getElementById('search-num').value.trim();
+  const resultEl = document.getElementById('search-result');
+
+  if(!val || isNaN(parseInt(val))) {
+    resultEl.innerHTML = '';
+    return;
+  }
+
+  const selectedYear = document.getElementById('search-year').value;
+  const queenId = selectedYear + '-' + String(parseInt(val)).padStart(2, '0');
+
+  // Find production
+  const prod = DB.productions.find(p => (p.queens || []).includes(queenId));
+
+  // Find vente
+  const vente = DB.ventes.find(v => v.reine === queenId);
+
+  if(!prod && !vente) {
+    resultEl.innerHTML = '';
+    toast(`Reine ${queenId} introuvable`, true);
+    return;
+  }
+
+  let html = `<div class="search-reine-badge">♛ ${queenId}</div>`;
+
+  // ── PRODUCTION ──
+  if(prod) {
+    const r1 = prod.implantees > 0 ? Math.round((prod.couveuse / prod.implantees) * 100) + '%' : '—';
+    const r2 = prod.implantees > 0 ? Math.round((prod.introduites / prod.implantees) * 100) + '%' : '—';
+    html += `
+      <div class="search-section-title">📋 Production</div>
+      <div class="card">
+        <div class="search-field-row">
+          <span class="search-field-lbl">Souche ♀ (F0)</span>
+          <span class="search-field-val highlight">${prod.souche || '—'}</span>
+        </div>
+        <div class="search-field-row">
+          <span class="search-field-lbl">Souche ⚦ (père)</span>
+          <span class="search-field-val">${prod.pere || '—'}</span>
+        </div>
+        <div class="search-field-row">
+          <span class="search-field-lbl">Type</span>
+          <span class="search-field-val">${prod.type || '—'}</span>
+        </div>
+        <div class="search-field-row">
+          <span class="search-field-lbl">Date greffage</span>
+          <span class="search-field-val">${fmtDate(prod.dateGreffage)}</span>
+        </div>
+        <div class="search-field-row">
+          <span class="search-field-lbl">Starter / Éleveuse</span>
+          <span class="search-field-val">${prod.starter || '—'}</span>
+        </div>
+        <div class="search-field-row">
+          <span class="search-field-lbl">Implantées</span>
+          <span class="search-field-val">${prod.implantees || 0}</span>
+        </div>
+        <div class="search-field-row">
+          <span class="search-field-lbl">Couveuse</span>
+          <span class="search-field-val">${prod.couveuse || 0} <span style="color:var(--text-muted);font-weight:400;font-size:12px;">(${r1})</span></span>
+        </div>
+        <div class="search-field-row">
+          <span class="search-field-lbl">Introduites</span>
+          <span class="search-field-val">${prod.introduites || 0} <span style="color:var(--text-muted);font-weight:400;font-size:12px;">(${r2})</span></span>
+        </div>
+        ${prod.notes ? `<div class="search-field-row"><span class="search-field-lbl">Notes</span><span class="search-field-val">${prod.notes}</span></div>` : ''}
+      </div>`;
+  } else {
+    html += `
+      <div class="search-section-title">📋 Production</div>
+      <div class="card"><div class="search-no-vente">Aucune production trouvée pour cette reine.</div></div>`;
+  }
+
+  // ── VENTE ──
+  if(vente) {
+    const prix = vente.prix != null ? vente.prix.toFixed(2) + ' €' : 'Non renseigné';
+    html += `
+      <div class="search-section-title">💰 Vente</div>
+      <div class="card">
+        <div class="search-field-row">
+          <span class="search-field-lbl">Acquéreur</span>
+          <span class="search-field-val highlight">${vente.acquereur || '—'}</span>
+        </div>
+        <div class="search-field-row">
+          <span class="search-field-lbl">Date de vente</span>
+          <span class="search-field-val">${fmtDate(vente.date)}</span>
+        </div>
+        <div class="search-field-row">
+          <span class="search-field-lbl">Prix</span>
+          <span class="search-field-val">${prix}</span>
+        </div>
+        <div class="search-field-row">
+          <span class="search-field-lbl">Qualité</span>
+          <span class="search-field-val">${vente.qualite || '—'}</span>
+        </div>
+        <div class="search-field-row">
+          <span class="search-field-lbl">Origine</span>
+          <span class="search-field-val">${vente.origine || '—'}</span>
+        </div>
+      </div>`;
+  } else {
+    html += `
+      <div class="search-section-title">💰 Vente</div>
+      <div class="card"><div class="search-no-vente">Cette reine n'a pas encore été vendue.</div></div>`;
+  }
+
+  resultEl.innerHTML = html;
+}
+
+
+
 </script>
-</body>
-</html>
