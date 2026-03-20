@@ -633,7 +633,7 @@ to   { opacity: 1; }
 
 <!-- SPLASH SCREEN -->
 <div id="splash">
-  <div class="splash-version">v 1.1</div>
+  <div class="splash-version">v 1.2</div>
 
   <div class="splash-logo-wrap">
     <div class="splash-logo-glow"></div>
@@ -660,7 +660,7 @@ to   { opacity: 1; }
     🐝 Cobee Queens
     <span>Production de Reines</span>
   </div>
-  <div class="nav-icon" id="nav-add-btn" onclick="navAddAction()">＋</div>
+
 </div>
 
 <!-- MAIN -->
@@ -733,9 +733,10 @@ to   { opacity: 1; }
       <div style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Les numéros déjà utilisés dans une production sont automatiquement verrouillés.</div>
       <div class="tag-list" id="tags-queens-range"></div>
       <div class="add-tag-row">
-        <input class="field-input" id="new-queen-num" placeholder="Ex: 151" type="number" style="flex:1">
+        <input class="field-input" id="new-queen-num" placeholder="Ex: 101" type="number" style="flex:1">
         <button class="btn-add" onclick="addQueenNum()">+</button>
       </div>
+      <button onclick="showConfirm({icon:'🔄',title:'Régénérer la liste ?',message:`La liste sera remplacée par ${YEAR}-01 à ${YEAR}-100. Les numéros déjà utilisés en production sont conservés.`,okLabel:'Régénérer',onConfirm:resetQueenNums})" style="margin-top:10px;width:100%;background:rgba(212,137,10,0.12);border:1px solid var(--card-border);border-radius:var(--radius-sm);color:var(--amber-light);padding:8px;font-size:13px;cursor:pointer;">🔄 Générer les numéros des reines de l'année</button>
     </div>
 
     <div class="section-label" style="padding-top:6px;">Ventes</div>
@@ -1145,8 +1146,24 @@ function importBackup(event) {
 
 function getDefaultQueens() {
   const nums = [];
-  for(let i = 1; i <= 150; i++) nums.push(`${YEAR}-${String(i).padStart(2,'0')}`);
+  for(let i = 1; i <= 100; i++) nums.push(`${YEAR}-${String(i).padStart(2,'0')}`);
   return nums;
+}
+
+function resetQueenNums() {
+  const newNums = getDefaultQueens();
+  const taken = new Set();
+  DB.productions.forEach(p => (p.queens||[]).forEach(q => taken.add(q)));
+  // Garder les numéros déjà utilisés même s'ils sont d'une autre année
+  const takenList = [...taken].filter(q => !newNums.includes(q));
+  DB.settings.queens = [...new Set([...newNums, ...takenList])];
+  DB.settings.queens.sort((a,b) => {
+    const [ayy, an] = a.split('-'); const [byy, bn] = b.split('-');
+    return ayy !== byy ? ayy.localeCompare(byy) : parseInt(an) - parseInt(bn);
+  });
+  saveDB(DB);
+  renderQueenNums();
+  toast(`Liste régénérée : ${YEAR}-01 à ${YEAR}-100 ✓`);
 }
 
 function initDB() {
@@ -1752,7 +1769,8 @@ const QUEENS_PREVIEW = 20;
 function renderQueenNums() {
   const taken = new Set();
   DB.productions.forEach(p => (p.queens||[]).forEach(q => taken.add(q)));
-  const all = DB.settings.queens;
+  // Afficher uniquement les numéros de l'année en cours
+  const all = DB.settings.queens.filter(q => q.startsWith(`${YEAR}-`));
   const visible = queensExpanded ? all : all.slice(0, QUEENS_PREVIEW);
   const rest = all.length - QUEENS_PREVIEW;
 
