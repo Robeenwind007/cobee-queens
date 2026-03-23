@@ -1318,21 +1318,10 @@ function updateBackupInfo() {
     const fmt = d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
     const nb = (b.productions||[]).length;
 
-    if(diffDays > 2) {
-      const jours = Math.floor(diffDays);
-      el.innerHTML = `⚠️ Dernière sauvegarde : <strong style="color:#e8824a">${fmt}</strong><br>Il y a <strong style="color:#e8824a">${jours} jour${jours>1?'s':''}</strong> — pensez à exporter !`;
-      el.style.background = 'rgba(180,60,0,0.15)';
-      el.style.color = '#e8824a';
-      if(banner) {
-        banner.style.display = 'block';
-        bannerMsg.textContent = `Dernière sauvegarde il y a ${jours} jour${jours>1?'s':''}`;
-      }
-    } else {
-      el.innerHTML = `✅ Dernière sauvegarde : <strong style="color:var(--amber-light)">${fmt}</strong><br>${nb} production(s) sauvegardée(s)`;
-      el.style.background = 'rgba(0,0,0,0.2)';
-      el.style.color = 'var(--text-muted)';
-      if(banner) banner.style.display = 'none';
-    }
+    el.innerHTML = `✅ Dernière sauvegarde : <strong style="color:var(--amber-light)">${fmt}</strong><br>${nb} production(s) sauvegardée(s)`;
+    el.style.background = 'rgba(0,0,0,0.2)';
+    el.style.color = 'var(--text-muted)';
+    if(banner) banner.style.display = 'none';
   } catch(e) {
     el.textContent = '⚠️ Sauvegarde illisible';
     if(banner) { banner.style.display = 'block'; bannerMsg.textContent = 'Sauvegarde illisible'; }
@@ -2165,7 +2154,22 @@ document.addEventListener('DOMContentLoaded', function() {
   var btn = document.querySelector('.splash-enter-btn');
   if (btn) btn.addEventListener('click', enterApp);
   setTimeout(enterApp, 3000);
-  setInterval(updateBackupInfo, 60 * 60 * 1000);
+  setInterval(() => {
+    loadFromSupabase().then(remoteDB => {
+      if(remoteDB) {
+        DB = remoteDB;
+        renderHistory();
+        renderVentes();
+        updateBackupInfo();
+        const activeScreen = document.querySelector('.tab-btn.active');
+        if(activeScreen) {
+          const name = activeScreen.id.replace('tab-', '');
+          if(name === 'stats') renderStats();
+          if(name === 'settings') renderSettings();
+        }
+      }
+    });
+  }, 60 * 1000); // synchro Supabase toutes les minutes
 
   // Chargement Supabase en arrière-plan (le cache local est déjà affiché)
   loadFromSupabase().then(remoteDB => {
