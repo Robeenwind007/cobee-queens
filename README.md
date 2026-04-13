@@ -2,7 +2,7 @@
 
 Application PWA de suivi de production et de vente de reines d'abeilles. Accessible depuis navigateur, installable sur mobile (iOS / Android) et tablette.
 
-**Version actuelle : 2.1.0**
+**Version actuelle : 2.1.1**
 
 🔗 [Accéder à l'application](https://robeenwind007.github.io/cobee-queens/)
 
@@ -96,3 +96,22 @@ git push origin main
 | `index.html` | Application complète (single-file) |
 | `README.md` | Documentation |
 | `cobee_import.json` | Jeu de données d'import |
+
+---
+
+## Historique des versions
+
+### v2.1.1 — Avril 2026
+- Migration de la base de données Supabase vers un compte payant (plan Pro)
+- Correction des permissions `anon` sur le schéma public après migration
+- Ajout d'un bloc "Connexion Supabase" en lecture seule dans les Paramètres
+
+### v2.1.0
+- Vues accordéon par année dans l'historique des productions
+- Filtres année sur les statistiques
+
+### v2.0.0
+- Migration des données de localStorage vers Supabase (PostgreSQL)
+- Synchronisation automatique toutes les minutes
+- Désactivation du Service Worker (résolution du problème de cache mobile)
+- Import des données de production existantes via JSON
