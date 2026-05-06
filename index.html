@@ -675,7 +675,7 @@ to   { opacity: 1; }
 
 <!-- SPLASH SCREEN -->
 <div id="splash">
-  <div class="splash-version">v 2.1.1</div>
+  <div class="splash-version">v 2.1.2</div>
 
   <div class="splash-logo-wrap">
     <div class="splash-logo-glow"></div>
@@ -1012,12 +1012,18 @@ to   { opacity: 1; }
     <div class="field-row">
       <div class="field-group">
         <label class="field-label">N° reine *</label>
-        <select class="field-select" id="v-reine"></select>
+        <select class="field-select" id="v-reine" onchange="updateVenteSouche()"></select>
       </div>
       <div class="field-group">
         <label class="field-label">Prix (€)</label>
         <input type="number" class="field-input" id="v-prix" placeholder="0">
       </div>
+    </div>
+
+    <!-- L3 bis : Souche ♀ (auto, lecture seule) -->
+    <div class="field-group">
+      <label class="field-label">Souche ♀ (référence génétique femelle)</label>
+      <input type="text" class="field-input" id="v-souche" readonly placeholder="—" style="background:rgba(212,137,10,0.08); color:var(--amber-light); font-weight:600;">
     </div>
 
     <!-- L4 : Qualité -->
@@ -2210,6 +2216,13 @@ function getAvailableQueens() {
   });
 }
 
+// Récupère la souche ♀ (référence génétique femelle) pour un numéro de reine donné
+function getSoucheByQueen(queenNum) {
+  if(!queenNum) return '';
+  const prod = (DB.productions || []).find(p => (p.queens || []).includes(queenNum));
+  return prod ? (prod.souche || '') : '';
+}
+
 function openVenteForm(editId = null) {
   editingVenteId = editId;
   document.getElementById('modal-vente-title').textContent = editId ? 'Modifier vente' : 'Nouvelle Vente';
@@ -2250,7 +2263,16 @@ function openVenteForm(editId = null) {
     document.getElementById('v-qualite').value = '—';
   }
 
+  updateVenteSouche();
+
   document.getElementById('modal-vente').classList.add('open');
+}
+
+// Met à jour le champ souche ♀ en fonction du n° reine sélectionné
+function updateVenteSouche() {
+  const reine = document.getElementById('v-reine').value;
+  const souche = getSoucheByQueen(reine);
+  document.getElementById('v-souche').value = souche || '—';
 }
 
 function closeVenteModal() {
@@ -2327,7 +2349,9 @@ function renderVentes() {
     const isCurrentYear = year === currentYear;
     const ca = items.reduce((s,v) => s + (v.prix||0), 0);
 
-    const rows = items.map(v => `
+    const rows = items.map(v => {
+      const souche = getSoucheByQueen(v.reine);
+      return `
       <div class="history-item" style="margin: 0 14px 8px; padding: 10px 12px;">
         <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
           <div style="display:flex; align-items:center; gap:6px; flex:1; min-width:0; flex-wrap:wrap; font-size:13px; color:var(--text-muted);">
@@ -2336,6 +2360,7 @@ function renderVentes() {
             <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${v.acquereur}</span>
             <span style="color:var(--card-border);">|</span>
             <span style="white-space:nowrap; color:var(--amber-light); font-weight:700;">${v.reine}</span>
+            ${souche ? `<span style="color:var(--card-border);">|</span><span style="white-space:nowrap;">♀ ${souche}</span>` : ''}
             <span style="color:var(--card-border);">|</span>
             <span style="white-space:nowrap;">${v.qualite || '—'}</span>
           </div>
@@ -2345,7 +2370,8 @@ function renderVentes() {
             <button class="hi-btn hi-btn-del" onclick="deleteVente('${v.id}')">🗑</button>
           </div>
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
 
     return `
       <div class="year-accordion" id="acc-vente-${year}">
@@ -2549,8 +2575,8 @@ function doSearch() {
           <span class="search-field-val">${vente.qualite || '—'}</span>
         </div>
         <div class="search-field-row">
-          <span class="search-field-lbl">Origine</span>
-          <span class="search-field-val">${vente.origine || '—'}</span>
+          <span class="search-field-lbl">Souche ♀</span>
+          <span class="search-field-val">${getSoucheByQueen(vente.reine) || '—'}</span>
         </div>
       </div>`;
   } else {
