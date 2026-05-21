@@ -602,6 +602,81 @@ to   { opacity: 1; }
 
   .search-result { margin-top: 4px; padding-bottom: 20px; }
 
+  /* ── STOCK REINES ── */
+  .stock-filters {
+    display: flex; gap: 8px; padding: 8px 14px 4px; flex-wrap: wrap;
+  }
+  .stock-filter-btn {
+    padding: 5px 14px; border-radius: 20px; border: 1px solid var(--card-border);
+    background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+    white-space: nowrap;
+  }
+  .stock-filter-btn.active { background: var(--amber-glow); border-color: var(--amber); color: var(--amber-light); }
+
+  .stock-reine-card {
+    margin: 0 14px 8px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+  }
+  .stock-reine-card.dcd { opacity: 0.55; border-color: rgba(192,57,43,0.3); }
+  .stock-reine-card.vendue { opacity: 0.65; border-color: rgba(90,158,78,0.3); }
+
+  .stock-reine-top {
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    margin-bottom: 6px;
+  }
+  .stock-reine-num {
+    font-family: 'DM Mono', 'Courier New', monospace;
+    font-size: 18px; font-weight: 700; color: var(--amber-light);
+  }
+
+  .badge-statut {
+    display: inline-block; padding: 2px 10px; border-radius: 12px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+    cursor: pointer; transition: opacity 0.15s;
+  }
+  .badge-statut:active { opacity: 0.75; }
+  .badge-en-stock { background: rgba(212,137,10,0.18); border: 1px solid var(--amber); color: var(--amber-light); }
+  .badge-vendue   { background: rgba(90,158,78,0.18);  border: 1px solid #5a9e4e; color: #7ecb72; }
+  .badge-dcd      { background: rgba(192,57,43,0.18);  border: 1px solid #c0392b; color: #e07060; }
+
+  .stock-reine-meta {
+    font-size: 12px; color: var(--text-muted);
+    display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+    margin-bottom: 6px;
+  }
+  .stock-reine-meta .chip {
+    background: rgba(212,137,10,0.08); border: 1px solid rgba(212,137,10,0.15);
+    border-radius: 6px; padding: 1px 7px; font-size: 11px;
+  }
+
+  .stock-reine-fields {
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end;
+  }
+  .stock-field-wrap { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 100px; }
+  .stock-field-lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .stock-field-sel {
+    background: rgba(0,0,0,0.3); border: 1px solid rgba(212,137,10,0.2);
+    border-radius: 8px; padding: 5px 8px; color: var(--text); font-size: 12px;
+    font-family: 'DM Sans', sans-serif; width: 100%;
+  }
+  .stock-field-input {
+    background: rgba(0,0,0,0.3); border: 1px solid rgba(212,137,10,0.2);
+    border-radius: 8px; padding: 5px 8px; color: var(--text); font-size: 12px;
+    font-family: 'DM Sans', sans-serif; width: 100%;
+  }
+
+  .stock-summary-bar {
+    display: flex; gap: 8px; padding: 6px 14px 10px; flex-wrap: wrap;
+  }
+  .stock-sum-chip {
+    padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;
+    background: var(--card); border: 1px solid var(--card-border);
+  }
+
   .search-not-found {
     text-align: center;
     padding: 32px 16px;
@@ -675,7 +750,7 @@ to   { opacity: 1; }
 
 <!-- SPLASH SCREEN -->
 <div id="splash">
-  <div class="splash-version">v 2.1.2</div>
+  <div class="splash-version">v 3.0.0</div>
 
   <div class="splash-logo-wrap">
     <div class="splash-logo-glow"></div>
@@ -703,6 +778,10 @@ to   { opacity: 1; }
     <span>Production de Reines</span>
   </div>
   <div id="sync-status" style="font-size:11px; color:var(--amber); transition:opacity 1s; opacity:0; font-weight:500;">⏳</div>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <div class="nav-icon" onclick="showScreen('search')" title="Recherche" style="font-size:18px;">🔍</div>
+    <div class="nav-icon" id="nav-add-btn" onclick="navAddAction()">＋</div>
+  </div>
 </div>
 
 <!-- MAIN -->
@@ -723,6 +802,7 @@ to   { opacity: 1; }
       <span>Reines vendues</span>
       <button onclick="openVenteForm()" style="background:var(--amber);color:var(--dark);border:none;border-radius:20px;padding:6px 16px;font-weight:700;font-size:14px;cursor:pointer;">＋ Nouvelle vente</button>
     </div>
+    <div id="ventes-year-filter" style="display:flex; gap:6px; flex-wrap:wrap; padding: 0 14px 8px;"></div>
     <div id="ventes-list"></div>
   </div>
 
@@ -865,6 +945,16 @@ to   { opacity: 1; }
     <div id="search-result" class="search-result"></div>
   </div>
 
+  <!-- SCREEN: STOCK REINES -->
+  <div class="screen" id="screen-stock">
+    <div class="section-label" style="display:flex; justify-content:space-between; align-items:center; padding-right:14px;">
+      <span>♛ Stock de Reines</span>
+      <div id="stock-year-filter" style="display:flex; gap:6px; flex-wrap:wrap;"></div>
+    </div>
+    <div class="stock-filters" id="stock-filters"></div>
+    <div id="stock-list"></div>
+  </div>
+
 </div><!-- /main -->
 
 <!-- BOTTOM TABS -->
@@ -873,17 +963,17 @@ to   { opacity: 1; }
   <button class="tab-btn active" id="tab-history" onclick="showScreen('history')">
     <span class="tab-icon">📋</span>Productions
   </button>
-  <button class="tab-btn" id="tab-search" onclick="showScreen('search')">
-    <span class="tab-icon">🔍</span>Recherche
+  <button class="tab-btn" id="tab-stock" onclick="showScreen('stock')">
+    <span class="tab-icon">♛</span>Stock
   </button>
   <button class="tab-btn" id="tab-ventes" onclick="showScreen('ventes')">
     <span class="tab-icon">💰</span>Ventes
   </button>
   <button class="tab-btn" id="tab-stats" onclick="showScreen('stats')">
-    <span class="tab-icon">📊</span>Statistiques
+    <span class="tab-icon">📊</span>Stats
   </button>
   <button class="tab-btn" id="tab-settings" onclick="showScreen('settings')">
-    <span class="tab-icon">⚙️</span>Paramètres
+    <span class="tab-icon">⚙️</span>Params
   </button>
 </div>
 
@@ -1019,6 +1109,9 @@ to   { opacity: 1; }
         <input type="number" class="field-input" id="v-prix" placeholder="0">
       </div>
     </div>
+
+    <!-- Info reine depuis stock -->
+    <div id="v-reine-info" style="display:none; align-items:center; flex-wrap:wrap; gap:6px; padding: 4px 2px 8px;"></div>
 
     <!-- L3 bis : Souche ♀ (auto, lecture seule) -->
     <div class="field-group">
@@ -1194,10 +1287,11 @@ function rowToSettings(r) {
 async function loadFromSupabase() {
   try {
     showSyncStatus('⏳ Chargement Supabase…');
-    const [prods, ventes, settingsArr] = await Promise.all([
+    const [prods, ventes, settingsArr, reinesArr] = await Promise.all([
       sbFetch('productions?select=*&order=date_greffage.desc'),
       sbFetch('ventes?select=*&order=date.desc'),
-      sbFetch('settings?select=*&id=eq.main')
+      sbFetch('settings?select=*&id=eq.main'),
+      sbFetch('reines?select=*&order=numero.asc').catch(() => [])
     ]);
 
     const settings = settingsArr && settingsArr[0]
@@ -1207,6 +1301,7 @@ async function loadFromSupabase() {
     const db = {
       productions: (prods || []).map(rowToProd),
       ventes: (ventes || []).map(rowToVente),
+      reines: (reinesArr || []).map(rowToReine),
       settings
     };
 
@@ -1278,6 +1373,8 @@ function saveDB(db, options = {}) {
   if(options.deleteProd) deleteProdFromSupabase(options.deleteProd);
   if(options.vente) saveVenteToSupabase(options.vente);
   if(options.deleteVente) deleteVenteFromSupabase(options.deleteVente);
+  if(options.reine) saveReineToSupabase(options.reine);
+  if(options.deleteReine) deleteReineFromSupabase(options.deleteReine);
   if(options.settings !== false) saveSettingsToSupabase(db.settings);
 }
 
@@ -1385,7 +1482,7 @@ function importBackup(event) {
         try {
           const parsed = JSON.parse(e.target.result);
           if(!parsed.productions || !parsed.settings) throw new Error('Format invalide');
-          DB = { productions: parsed.productions, ventes: parsed.ventes || [], settings: parsed.settings };
+          DB = { productions: parsed.productions, ventes: parsed.ventes || [], reines: parsed.reines || [], settings: parsed.settings };
           if(!DB.settings.qualites) DB.settings.qualites = ['Bon démarrage','Bonne ponte','Très bonne','Excellente','Bombasse'];
           if(!DB.settings.prixDefaut) DB.settings.prixDefaut = 0;
           saveDBLocal(DB);
@@ -1395,6 +1492,7 @@ function importBackup(event) {
           await Promise.all([
             ...DB.productions.map(p => saveProdToSupabase(p)),
             ...DB.ventes.map(v => saveVenteToSupabase(v)),
+            ...(DB.reines||[]).map(r => saveReineToSupabase(r)),
             saveSettingsToSupabase(DB.settings)
           ]);
           showSyncStatus('✅ Import Supabase terminé');
@@ -1448,11 +1546,12 @@ function initDB() {
   const existing = loadDBLocal();
   if(existing) {
     if(!existing.ventes) existing.ventes = [];
+    if(!existing.reines) existing.reines = [];
     if(!existing.settings.qualites) existing.settings.qualites = ['Bon démarrage','Bonne ponte','Très bonne','Excellente','Bombasse'];
     if(!existing.settings.prixDefaut) existing.settings.prixDefaut = 0;
     return existing;
   }
-  const db = { productions: [], ventes: [], settings: getDefaultSettings() };
+  const db = { productions: [], ventes: [], reines: [], settings: getDefaultSettings() };
   saveDBLocal(db);
   return db;
 }
@@ -1477,14 +1576,16 @@ function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('screen-' + name).classList.add('active');
-  document.getElementById('tab-' + name).classList.add('active');
+  const tabBtn = document.getElementById('tab-' + name);
+  if(tabBtn) tabBtn.classList.add('active');
   if(name === 'history') renderHistory();
   if(name === 'stats') renderStats();
   if(name === 'ventes') renderVentes();
   if(name === 'settings') renderSettings();
   if(name === 'search') initSearchScreen();
+  if(name === 'stock') renderStock();
   // Masquer le + sur les écrans qui ont leur propre bouton ou pas d'action
-  const hideAdd = ['ventes', 'stats', 'search', 'settings'];
+  const hideAdd = ['ventes', 'stats', 'search', 'settings', 'stock'];
   document.getElementById('nav-add-btn').style.visibility = hideAdd.includes(name) ? 'hidden' : 'visible';
 }
 
@@ -1813,14 +1914,26 @@ function saveRecord() {
     queens: [...selectedQueens]
   };
 
+  // Récupérer les anciennes queens si modification
+  let oldQueens = [];
   if(editingId) {
     const idx = DB.productions.findIndex(x => x.id === editingId);
-    if(idx >= 0) DB.productions[idx] = record;
+    if(idx >= 0) {
+      oldQueens = DB.productions[idx].queens || [];
+      DB.productions[idx] = record;
+    }
   } else {
     DB.productions.push(record);
   }
 
+  // Sync des reines en stock
+  const { added, retired } = syncReinesFromProduction(record, oldQueens);
+
   saveDB(DB, { prod: record, settings: false });
+  // Sauvegarder les nouvelles reines dans Supabase
+  added.forEach(r => saveReineToSupabase(r));
+  retired.forEach(id => deleteReineFromSupabase(id));
+
   closeModal();
   renderHistory();
   toast(editingId ? 'Production modifiée ✓' : 'Production enregistrée ✓');
@@ -1877,9 +1990,20 @@ function renderStats() {
   const prixMoyen = totalVentes > 0 ? Math.round(totalCA / totalVentes) : 0;
   const tauxEcoulement = totalReines > 0 ? Math.round((totalVentes / totalReines) * 100) : 0;
 
+  // Stats depuis DB.reines
+  const reinesToutes = (DB.reines || []).filter(r => {
+    if(selectedStatsYear === 'all') return true;
+    return r.numero.startsWith(selectedStatsYear + '-') || (r.dateGreffage||'').startsWith('20' + selectedStatsYear);
+  });
+  const reinesDCD = reinesToutes.filter(r => r.statut === 'DCD').length;
+  const reinesEnStock = reinesToutes.filter(r => r.statut === 'En stock').length;
+  const tauxPerte = reinesToutes.length > 0 ? Math.round((reinesDCD / reinesToutes.length) * 100) : 0;
+
   document.getElementById('stats-grid').innerHTML = `
     <div class="stat-card"><div class="stat-val">${prods.length}</div><div class="stat-lbl">Productions</div></div>
     <div class="stat-card"><div class="stat-val">${totalReines}</div><div class="stat-lbl">Reines produites</div></div>
+    <div class="stat-card"><div class="stat-val">${reinesEnStock}</div><div class="stat-lbl">En stock</div></div>
+    <div class="stat-card" style="border-color:rgba(192,57,43,0.35);"><div class="stat-val" style="color:#e07060;">${reinesDCD}</div><div class="stat-lbl">DCD · ${tauxPerte}% perte</div></div>
     <div class="stat-card"><div class="stat-val">${totalImpl}</div><div class="stat-lbl">Cellules implantées</div></div>
     <div class="stat-card"><div class="stat-val">${avgR1}%</div><div class="stat-lbl">Ratio Couveuses moy.</div></div>
     <div class="stat-card"><div class="stat-val">${totalIntr}</div><div class="stat-lbl">Cellules introduites</div></div>
@@ -2202,12 +2326,286 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ══════════════════════════════════════════════════
+// STOCK REINES
+// ══════════════════════════════════════════════════
+
+// ── Supabase CRUD reines ──
+async function saveReineToSupabase(reine) {
+  try {
+    await sbFetch('reines', {
+      method: 'POST',
+      prefer: 'resolution=merge-duplicates',
+      body: JSON.stringify(reineToRow(reine))
+    });
+  } catch(e) { console.error('Supabase save reine error:', e); }
+}
+
+async function deleteReineFromSupabase(id) {
+  try {
+    await sbFetch(`reines?id=eq.${id}`, { method: 'DELETE' });
+  } catch(e) { console.error('Supabase delete reine error:', e); }
+}
+
+function reineToRow(r) {
+  return {
+    id: r.id,
+    numero: r.numero,
+    production_id: r.production_id || null,
+    type: r.type || '',
+    souche: r.souche || '',
+    pere: r.pere || '',
+    date_greffage: r.dateGreffage || null,
+    statut: r.statut || 'En stock',
+    qualite: r.qualite || '',
+    notes: r.notes || '',
+    date_statut: r.date_statut || null
+  };
+}
+
+function rowToReine(row) {
+  return {
+    id: row.id,
+    numero: row.numero,
+    production_id: row.production_id || '',
+    type: row.type || '',
+    souche: row.souche || '',
+    pere: row.pere || '',
+    dateGreffage: row.date_greffage || '',
+    statut: row.statut || 'En stock',
+    qualite: row.qualite || '',
+    notes: row.notes || '',
+    date_statut: row.date_statut || ''
+  };
+}
+
+// ── Créer/mettre à jour les entrées reines depuis une production ──
+// Appelé à chaque saveRecord()
+function syncReinesFromProduction(prod, oldQueens = []) {
+  if(!DB.reines) DB.reines = [];
+
+  const newNums = new Set(prod.queens || []);
+  const oldNums = new Set(oldQueens);
+
+  // Supprimer les reines retirées de la production (si En stock uniquement)
+  const removed = [...oldNums].filter(q => !newNums.has(q));
+  const reinesRetired = [];
+  removed.forEach(q => {
+    const idx = DB.reines.findIndex(r => r.numero === q && r.production_id === prod.id);
+    if(idx >= 0 && DB.reines[idx].statut === 'En stock') {
+      const id = DB.reines[idx].id;
+      DB.reines.splice(idx, 1);
+      reinesRetired.push(id);
+    }
+  });
+
+  // Ajouter les nouvelles reines
+  const reinesAdded = [];
+  newNums.forEach(q => {
+    const exists = DB.reines.find(r => r.numero === q);
+    if(!exists) {
+      const reine = {
+        id: 'reine_' + q.replace('-','') + '_' + Date.now(),
+        numero: q,
+        production_id: prod.id,
+        type: prod.type || '',
+        souche: prod.souche || '',
+        pere: prod.pere || '',
+        dateGreffage: prod.dateGreffage || '',
+        statut: 'En stock',
+        qualite: '',
+        notes: '',
+        date_statut: new Date().toISOString().split('T')[0]
+      };
+      DB.reines.push(reine);
+      reinesAdded.push(reine);
+    }
+  });
+
+  return { added: reinesAdded, retired: reinesRetired };
+}
+
+// ── Migration initiale : construire DB.reines depuis productions + ventes existantes ──
+function migrateReines() {
+  if(!DB.reines) DB.reines = [];
+  const soldQueens = new Set((DB.ventes || []).map(v => v.reine));
+
+  let count = 0;
+  (DB.productions || []).forEach(prod => {
+    (prod.queens || []).forEach(q => {
+      const exists = DB.reines.find(r => r.numero === q);
+      if(!exists) {
+        const vente = (DB.ventes || []).find(v => v.reine === q);
+        const reine = {
+          id: 'reine_' + q.replace('-','') + '_migr',
+          numero: q,
+          production_id: prod.id,
+          type: prod.type || '',
+          souche: prod.souche || '',
+          pere: prod.pere || '',
+          dateGreffage: prod.dateGreffage || '',
+          statut: soldQueens.has(q) ? 'Vendue' : 'En stock',
+          qualite: vente ? (vente.qualite || '') : '',
+          notes: '',
+          date_statut: vente ? (vente.date || '') : (prod.dateGreffage || '')
+        };
+        DB.reines.push(reine);
+        count++;
+      }
+    });
+  });
+  if(count > 0) {
+    saveDBLocal(DB);
+    // Pousser vers Supabase
+    DB.reines.forEach(r => saveReineToSupabase(r));
+  }
+  return count;
+}
+
+// ── Filtre courant du stock ──
+let stockFilter = 'En stock';
+let stockYear = YEAR;
+
+function setStockFilter(f) {
+  stockFilter = f;
+  renderStock();
+}
+
+function setStockYear(y) {
+  stockYear = y;
+  renderStock();
+}
+
+function renderStock() {
+  if(!DB.reines) DB.reines = [];
+
+  // Migration auto si DB.reines est vide alors qu'il y a des productions
+  const totalQueens = (DB.productions || []).reduce((s,p) => s+(p.queens||[]).length, 0);
+  if(DB.reines.length === 0 && totalQueens > 0) {
+    const migrated = migrateReines();
+    if(migrated > 0) toast(`✅ ${migrated} reines migrées vers le stock`);
+  }
+
+  const all = DB.reines;
+
+  // Toggle années
+  const years = [...new Set(all.map(r => r.numero.split('-')[0]).filter(Boolean))].sort((a,b) => b - a);
+  const yearFilterEl = document.getElementById('stock-year-filter');
+  if(yearFilterEl) {
+    yearFilterEl.innerHTML = [YEAR, ...years.filter(y => y !== YEAR), 'all'].map(y => {
+      const label = y === 'all' ? 'Toutes' : y;
+      const active = stockYear === y ? 'active' : '';
+      return `<button class="year-pill ${active}" onclick="setStockYear('${y}')">${label}</button>`;
+    }).filter((v,i,a) => a.indexOf(v) === i).join('');
+    // Dédoublonner proprement
+    const uniqYears = ['all', ...years];
+    yearFilterEl.innerHTML = uniqYears.map(y => {
+      const label = y === 'all' ? 'Toutes' : y;
+      const active = stockYear === y ? 'active' : '';
+      return `<button class="year-pill ${active}" onclick="setStockYear('${y}')">${label}</button>`;
+    }).join('');
+  }
+
+  // Filtrer par année
+  const byYear = stockYear === 'all' ? all : all.filter(r => r.numero.startsWith(stockYear + '-'));
+
+  // Filtres statut
+  const filters = ['En stock', 'Vendue', 'DCD', 'Toutes'];
+  document.getElementById('stock-filters').innerHTML = filters.map(f => {
+    const active = stockFilter === f ? 'active' : '';
+    return `<button class="stock-filter-btn ${active}" onclick="setStockFilter('${f}')">${f === 'En stock' ? '♛ En stock' : f === 'Vendue' ? '✅ Vendues' : f === 'DCD' ? '✝ DCD' : '⬛ Toutes'}</button>`;
+  }).join('');
+
+  const filtered = stockFilter === 'Toutes' ? [...byYear] : byYear.filter(r => r.statut === stockFilter);
+  filtered.sort((a,b) => {
+    const [ay, an] = a.numero.split('-'); const [by2, bn] = b.numero.split('-');
+    return ay !== by2 ? by2 - ay : parseInt(an) - parseInt(bn);
+  });
+
+  const listEl = document.getElementById('stock-list');
+  if(!filtered.length) {
+    listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">♛</div><div class="empty-text">Aucune reine dans cette catégorie.</div></div>`;
+    return;
+  }
+
+  listEl.innerHTML = filtered.map(r => {
+    const statutClass = r.statut === 'DCD' ? 'dcd' : r.statut === 'Vendue' ? 'vendue' : '';
+    const qualites = ['', ...(DB.settings.qualites || [])];
+    const venteInfo = r.statut === 'Vendue' ? (DB.ventes || []).find(v => v.reine === r.numero) : null;
+
+    return `
+    <div class="stock-reine-card ${statutClass}" id="srcard-${r.id}">
+      <div class="stock-reine-top">
+        <span class="stock-reine-num">♛ ${r.numero}</span>
+        <select class="stock-field-sel" style="max-width:110px; font-weight:700; font-size:12px;" onchange="updateReineField('${r.id}','statut',this.value);renderStock();">
+          <option value="En stock" ${r.statut==='En stock'?'selected':''}>♛ En stock</option>
+          <option value="DCD" ${r.statut==='DCD'?'selected':''}>✝ DCD</option>
+          <option value="Vendue" ${r.statut==='Vendue'?'selected':''} ${r.statut!=='Vendue'?'disabled':''}>✅ Vendue</option>
+        </select>
+      </div>
+      <div class="stock-reine-meta">
+        ${r.type ? `<span class="chip">${r.type}</span>` : ''}
+        ${r.souche ? `<span class="chip">♀ ${r.souche}</span>` : ''}
+        ${r.pere ? `<span class="chip">⚦ ${r.pere}</span>` : ''}
+        ${r.dateGreffage ? `<span style="color:var(--text-muted);font-size:11px;">📅 ${fmtDate(r.dateGreffage)}</span>` : ''}
+      </div>
+      <div class="stock-reine-fields">
+        <div class="stock-field-wrap" style="max-width:150px;">
+          <div class="stock-field-lbl">Qualité</div>
+          <select class="stock-field-sel" onchange="updateReineField('${r.id}','qualite',this.value)">
+            ${qualites.map(q => `<option value="${q}" ${r.qualite===q?'selected':''}>${q||'—'}</option>`).join('')}
+          </select>
+        </div>
+        <div class="stock-field-wrap">
+          <div class="stock-field-lbl">Notes</div>
+          <input class="stock-field-input" value="${r.notes||''}" placeholder="…" onblur="updateReineField('${r.id}','notes',this.value)">
+        </div>
+      </div>
+      ${venteInfo ? `<div style="margin-top:6px; font-size:11px; color:#7ecb72;">💰 Vendue le ${fmtDate(venteInfo.date)} à ${venteInfo.acquereur}${venteInfo.prix ? ' · ' + venteInfo.prix + ' €' : ''}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// Cycle statut : En stock → DCD → En stock (Vendue géré par les ventes)
+function cycleStatut(id) {
+  const reine = DB.reines.find(r => r.id === id);
+  if(!reine) return;
+  // Si Vendue → pas de cycle direct (géré par ventes)
+  if(reine.statut === 'Vendue') {
+    toast('Statut géré par les ventes', true);
+    return;
+  }
+  reine.statut = reine.statut === 'En stock' ? 'DCD' : 'En stock';
+  reine.date_statut = new Date().toISOString().split('T')[0];
+  saveDB(DB, { reine: reine, settings: false });
+  renderStock();
+  toast(`Reine ${reine.numero} → ${reine.statut}`);
+}
+
+function updateReineField(id, field, value) {
+  const reine = DB.reines.find(r => r.id === id);
+  if(!reine) return;
+  reine[field] = value;
+  saveDB(DB, { reine: reine, settings: false });
+}
+
+// ══════════════════════════════════════════════════
 // VENTES
 // ══════════════════════════════════════════════════
 let editingVenteId = null;
+let selectedVenteYear = YEAR;
 
 function getAvailableQueens() {
-  // Reines produites (dans des productions) et pas encore vendues
+  // Utiliser DB.reines — uniquement statut 'En stock' (exclut Vendue et DCD)
+  if(DB.reines && DB.reines.length > 0) {
+    return DB.reines
+      .filter(r => r.statut === 'En stock')
+      .map(r => r.numero)
+      .sort((a,b) => {
+        const [ay,an] = a.split('-'); const [by,bn] = b.split('-');
+        return ay !== by ? by - ay : parseInt(an) - parseInt(bn);
+      });
+  }
+  // Fallback ancien comportement si pas encore migré
   const soldQueens = new Set((DB.ventes || []).map(v => v.reine));
   const produced = new Set();
   DB.productions.forEach(p => (p.queens || []).forEach(q => produced.add(q)));
@@ -2273,6 +2671,28 @@ function updateVenteSouche() {
   const reine = document.getElementById('v-reine').value;
   const souche = getSoucheByQueen(reine);
   document.getElementById('v-souche').value = souche || '—';
+
+  // Récupérer statut et notes depuis DB.reines
+  const reineObj = (DB.reines||[]).find(r => r.numero === reine);
+  const infoEl = document.getElementById('v-reine-info');
+  if(infoEl && reineObj) {
+    const badgeClass = reineObj.statut === 'DCD' ? 'badge-dcd' : reineObj.statut === 'Vendue' ? 'badge-vendue' : 'badge-en-stock';
+    infoEl.innerHTML = `
+      <span class="badge-statut ${badgeClass}" style="cursor:default; font-size:11px;">${reineObj.statut}</span>
+      ${reineObj.qualite ? `<span style="font-size:12px; color:var(--amber-light); margin-left:6px;">⭐ ${reineObj.qualite}</span>` : ''}
+      ${reineObj.notes ? `<span style="font-size:12px; color:var(--text-muted); margin-left:6px;">— ${reineObj.notes}</span>` : ''}
+    `;
+    infoEl.style.display = 'flex';
+  } else if(infoEl) {
+    infoEl.innerHTML = '';
+    infoEl.style.display = 'none';
+  }
+
+  // Pré-remplir la qualité depuis DB.reines
+  if(reineObj && reineObj.qualite) {
+    const qualiteEl = document.getElementById('v-qualite');
+    if(qualiteEl) qualiteEl.value = reineObj.qualite;
+  }
 }
 
 function closeVenteModal() {
@@ -2286,23 +2706,50 @@ function saveVente() {
   const reine = document.getElementById('v-reine').value;
   if(!date || !acquereur || !reine) { toast('Champs obligatoires manquants', true); return; }
 
+  const qualite = document.getElementById('v-qualite').value === '—' ? '' : document.getElementById('v-qualite').value;
+
   const vente = {
     id: editingVenteId || Date.now().toString(),
     date,
     acquereur,
     reine,
     prix: parseFloat(document.getElementById('v-prix').value) || 0,
-    qualite: document.getElementById('v-qualite').value === '—' ? '' : document.getElementById('v-qualite').value
+    qualite
   };
 
   if(!DB.ventes) DB.ventes = [];
   if(editingVenteId) {
+    // Si la reine change, remettre l'ancienne en stock
+    const oldVente = DB.ventes.find(x => x.id === editingVenteId);
+    if(oldVente && oldVente.reine !== reine) {
+      const oldReine = (DB.reines||[]).find(r => r.numero === oldVente.reine);
+      if(oldReine && oldReine.statut === 'Vendue') {
+        oldReine.statut = 'En stock';
+        oldReine.qualite = '';
+        saveReineToSupabase(oldReine);
+      }
+    }
     const idx = DB.ventes.findIndex(x => x.id === editingVenteId);
     if(idx >= 0) DB.ventes[idx] = vente;
   } else {
     DB.ventes.push(vente);
   }
-  saveDB(DB, { vente: vente, settings: false });
+
+  // Passer la reine en Vendue dans DB.reines + synchroniser la qualité
+  if(DB.reines) {
+    const reineObj = DB.reines.find(r => r.numero === reine);
+    if(reineObj) {
+      reineObj.statut = 'Vendue';
+      reineObj.qualite = qualite;
+      reineObj.date_statut = date;
+      saveDB(DB, { vente: vente, reine: reineObj, settings: false });
+    } else {
+      saveDB(DB, { vente: vente, settings: false });
+    }
+  } else {
+    saveDB(DB, { vente: vente, settings: false });
+  }
+
   closeVenteModal();
   renderVentes();
   toast(editingVenteId ? 'Vente modifiée ✓' : 'Vente enregistrée ✓');
@@ -2312,20 +2759,57 @@ function deleteVente(id) {
   showConfirm({
     icon: '🗑️',
     title: 'Supprimer cette vente ?',
-    message: 'Cette action est irréversible.',
+    message: 'Cette action est irréversible. La reine repassera En stock.',
     okLabel: 'Supprimer',
     onConfirm: () => {
+      const vente = (DB.ventes || []).find(x => x.id === id);
+      // Remettre la reine en stock
+      if(vente && DB.reines) {
+        const reineObj = DB.reines.find(r => r.numero === vente.reine);
+        if(reineObj && reineObj.statut === 'Vendue') {
+          reineObj.statut = 'En stock';
+          reineObj.date_statut = new Date().toISOString().split('T')[0];
+          saveReineToSupabase(reineObj);
+        }
+      }
       DB.ventes = (DB.ventes || []).filter(x => x.id !== id);
       saveDB(DB, { deleteVente: id, settings: false });
       renderVentes();
-      toast('Vente supprimée');
+      toast('Vente supprimée · Reine remise en stock');
     }
   });
 }
 
+function setVenteYear(y) {
+  selectedVenteYear = y;
+  renderVentes();
+}
+
 function renderVentes() {
+  // Toggle années
+  const allVentes = DB.ventes || [];
+  const years = [...new Set(allVentes.map(v => (v.date||'').split('-')[0].slice(-2)).filter(Boolean))].sort((a,b) => b - a);
+  const yearFilterEl = document.getElementById('ventes-year-filter');
+  if(yearFilterEl) {
+    const uniqYears = ['all', ...years];
+    yearFilterEl.innerHTML = uniqYears.map(y => {
+      const label = y === 'all' ? 'Toutes' : y;
+      const active = selectedVenteYear === y ? 'active' : '';
+      return `<button class="year-pill ${active}" onclick="setVenteYear('${y}')">${label}</button>`;
+    }).join('');
+  }
+  // Si l'année sélectionnée n'existe plus, reset sur YEAR ou 'all'
+  if(selectedVenteYear !== 'all' && !years.includes(selectedVenteYear)) selectedVenteYear = years[0] || 'all';
+
   const list = document.getElementById('ventes-list');
-  const ventes = [...(DB.ventes || [])].sort((a,b) => (b.date||'').localeCompare(a.date||''));
+  const ventes = [...allVentes]
+    .filter(v => {
+      if(selectedVenteYear === 'all') return true;
+      const y4 = (v.date||'').split('-')[0]; // ex: "2026"
+      const y2 = y4.slice(-2); // ex: "26"
+      return y2 === selectedVenteYear || y4 === selectedVenteYear;
+    })
+    .sort((a,b) => (b.date||'').localeCompare(a.date||''));
 
   if(!ventes.length) {
     list.innerHTML = `<div class="empty-state"><div class="empty-icon">💰</div><div class="empty-text">Aucune vente enregistrée.</div></div>`;
@@ -2342,9 +2826,9 @@ function renderVentes() {
     byYear[year].push(v);
   });
 
-  const years = Object.keys(byYear).sort((a,b) => b - a);
+  const groupYears = Object.keys(byYear).sort((a,b) => b - a);
 
-  list.innerHTML = years.map(year => {
+  list.innerHTML = groupYears.map(year => {
     const items = byYear[year];
     const isCurrentYear = year === currentYear;
     const ca = items.reduce((s,v) => s + (v.prix||0), 0);
@@ -2424,6 +2908,8 @@ async function forceSyncFromSupabase() {
     renderHistory();
     renderVentes();
     renderSettings();
+    const activeScreen = document.querySelector('.tab-btn.active');
+    if(activeScreen && activeScreen.id === 'tab-stock') renderStock();
     if(badge) badge.textContent = '✅ Synchronisé';
     toast('✅ Données rechargées depuis Supabase');
   } else {
@@ -2504,6 +2990,13 @@ function doSearch() {
   }
 
   let html = `<div class="search-reine-badge">♛ ${queenId}</div>`;
+
+  // Statut depuis DB.reines
+  const reineObj = (DB.reines||[]).find(r => r.numero === queenId);
+  if(reineObj) {
+    const badgeClass = reineObj.statut === 'DCD' ? 'badge-dcd' : reineObj.statut === 'Vendue' ? 'badge-vendue' : 'badge-en-stock';
+    html += `<div style="margin-bottom:10px;"><span class="badge-statut ${badgeClass}" style="cursor:default;">${reineObj.statut}</span>${reineObj.qualite ? `<span style="margin-left:8px; font-size:13px; color:var(--amber-light);">⭐ ${reineObj.qualite}</span>` : ''}${reineObj.notes ? `<span style="margin-left:8px; font-size:12px; color:var(--text-muted);">${reineObj.notes}</span>` : ''}</div>`;
+  }
 
   // ── PRODUCTION ──
   if(prod) {
