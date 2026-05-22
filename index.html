@@ -750,7 +750,7 @@ to   { opacity: 1; }
 
 <!-- SPLASH SCREEN -->
 <div id="splash">
-  <div class="splash-version">v 3.0.0</div>
+  <div class="splash-version">v 3.0.4</div>
 
   <div class="splash-logo-wrap">
     <div class="splash-logo-glow"></div>
@@ -2297,6 +2297,10 @@ document.addEventListener('DOMContentLoaded', function() {
   setInterval(() => {
     loadFromSupabase().then(remoteDB => {
       if(remoteDB) {
+        // Préserver les reines locales si Supabase en retourne aucune
+        if((!remoteDB.reines || remoteDB.reines.length === 0) && DB.reines && DB.reines.length > 0) {
+          remoteDB.reines = DB.reines;
+        }
         DB = remoteDB;
         renderHistory();
         renderVentes();
@@ -2306,6 +2310,7 @@ document.addEventListener('DOMContentLoaded', function() {
           const name = activeScreen.id.replace('tab-', '');
           if(name === 'stats') renderStats();
           if(name === 'settings') renderSettings();
+          if(name === 'stock') renderStock();
         }
       }
     });
@@ -2314,6 +2319,10 @@ document.addEventListener('DOMContentLoaded', function() {
   // Chargement Supabase en arrière-plan (le cache local est déjà affiché)
   loadFromSupabase().then(remoteDB => {
     if(remoteDB) {
+      // Préserver les reines locales si Supabase en retourne aucune
+      if((!remoteDB.reines || remoteDB.reines.length === 0) && DB.reines && DB.reines.length > 0) {
+        remoteDB.reines = DB.reines;
+      }
       DB = remoteDB;
       renderHistory();
       renderVentes();
@@ -2341,7 +2350,7 @@ async function saveReineToSupabase(reine) {
       prefer: 'resolution=merge-duplicates',
       body: JSON.stringify(row)
     });
-  } catch(e) { console.error('Supabase save reine error:', e); }
+  } catch(e) { console.error('Supabase save reine error:', reine.numero, e.message); }
 }
 
 async function deleteReineFromSupabase(id) {
@@ -2429,7 +2438,7 @@ function syncReinesFromProduction(prod, oldQueens = []) {
 }
 
 // ── Migration initiale : construire DB.reines depuis productions + ventes existantes ──
-function migrateReines() {
+async function migrateReines() {
   if(!DB.reines) DB.reines = [];
   const soldQueens = new Set((DB.ventes || []).map(v => v.reine));
 
@@ -2459,8 +2468,10 @@ function migrateReines() {
   });
   if(count > 0) {
     saveDBLocal(DB);
-    // Pousser vers Supabase
-    DB.reines.forEach(r => saveReineToSupabase(r));
+    // Pousser vers Supabase — attendre que tous les appels soient terminés
+    try {
+      await Promise.all(DB.reines.map(r => saveReineToSupabase(r)));
+    } catch(e) { console.error('Migration Supabase error:', e); }
   }
   return count;
 }
@@ -2479,21 +2490,21 @@ function setStockYear(y) {
   renderStock();
 }
 
-function forceMigrateReines() {
+async function forceMigrateReines() {
   DB.reines = [];
   saveDBLocal(DB);
-  const migrated = migrateReines();
-  toast(migrated > 0 ? `✅ ${migrated} reines migrées` : '⚠️ Aucune reine à migrer');
+  const migrated = await migrateReines();
+  toast(migrated > 0 ? `✅ ${migrated} reines migrées vers Supabase` : '⚠️ Aucune reine à migrer');
   renderStock();
 }
 
-function renderStock() {
+async function renderStock() {
   if(!DB.reines) DB.reines = [];
 
   // Migration auto si DB.reines est vide alors qu'il y a des productions
   const totalQueens = (DB.productions || []).reduce((s,p) => s+(p.queens||[]).length, 0);
   if(DB.reines.length === 0 && totalQueens > 0) {
-    const migrated = migrateReines();
+    const migrated = await migrateReines();
     if(migrated > 0) toast(`✅ ${migrated} reines migrées vers le stock`);
   }
 
