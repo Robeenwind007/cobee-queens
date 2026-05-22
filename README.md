@@ -1,4 +1,4 @@
-# 🐝 Cobee Queens — v3.0.0
+# 🐝 Cobee Queens — v3.0.4
 
 Application PWA de gestion de production de reines abeilles.
 Déployée sur GitHub Pages · Backend Supabase · Single-file `index.html`
@@ -12,7 +12,7 @@ Déployée sur GitHub Pages · Backend Supabase · Single-file `index.html`
 
 ```bash
 git add index.html README.md
-git commit -m "Cobee Queens v3.0.0"
+git commit -m "Cobee Queens vX.X.X"
 git push
 ```
 
@@ -24,7 +24,7 @@ git push
 
 **Project ref** : `aatbpkuuwpoareykftpg`
 **URL** : `https://aatbpkuuwpoareykftpg.supabase.co`
-**Plan** : Payant · Pas de RLS · accès direct clé `anon`
+**Plan** : Payant · RLS désactivé sur toutes les tables · accès direct clé `anon`
 
 ### Tables
 
@@ -56,7 +56,7 @@ git push
 | `qualite` | TEXT | Qualité constatée |
 | `origine` | TEXT | Origine (optionnel) |
 
-#### `reines` *(nouveau v3.0.0)*
+#### `reines`
 | Colonne | Type | Description |
 |---|---|---|
 | `id` | TEXT PK | Identifiant unique |
@@ -99,6 +99,8 @@ CREATE TABLE reines (
   notes TEXT,
   date_statut DATE
 );
+-- Désactiver le RLS (cohérent avec les autres tables)
+ALTER TABLE reines DISABLE ROW LEVEL SECURITY;
 GRANT ALL ON reines TO anon;
 ```
 
@@ -109,7 +111,7 @@ GRANT ALL ON reines TO anon;
 - **Single-file** `index.html` — HTML + CSS + JS tout-en-un
 - **localStorage** : cache local `cobeequeen_v2` + sauvegarde `cobeequeen_backup_v2`
 - **Supabase REST API** : sync en arrière-plan, chargement au démarrage + toutes les 60s
-- **Pas d'authentification** : clé `anon` directe
+- **Pas d'authentification** : clé `anon` directe, RLS désactivé sur toutes les tables
 
 ---
 
@@ -135,119 +137,40 @@ GRANT ALL ON reines TO anon;
 - **Création automatique des entrées dans le stock** à chaque attribution de numéro
 - Vue accordéon groupée par année (année en cours ouverte par défaut)
 
-### ♛ Stock de Reines *(nouveau v3.0.0)*
+### ♛ Stock de Reines
 - Vue de toutes les reines numérotées avec statut, qualité, notes, origine
 - **Filtre par année** : toggle `26` / `25` / … / `Toutes`
 - **Filtre par statut** : En stock / Vendues / DCD / Toutes
 - Statut modifiable via select : `En stock` ↔ `DCD`
-  - `Vendue` est géré automatiquement par les ventes (non modifiable manuellement)
+  - `Vendue` géré automatiquement par les ventes
   - `DCD` exclut la reine de la liste des reines à vendre
-- Qualité modifiable inline (select)
-- Notes libres modifiables inline (champ texte)
+- Qualité et notes modifiables inline
 - Reines vendues : affichent date, acquéreur, prix
-- **Migration automatique** au premier accès si stock vide : reconstruit depuis productions + ventes existantes
+- **Bouton ⟳ Migration** : reconstruit le stock depuis productions + ventes existantes et pousse vers Supabase
+- **Migration automatique** au premier accès si stock vide
 
 ### 💰 Ventes
 - **Filtre par année** : toggle `26` / `25` / … / `Toutes`
 - Select reine filtré sur statut `En stock` uniquement (`DCD` et `Vendue` exclus)
 - Affichage inline du statut, qualité et notes de la reine sélectionnée
 - **Pré-remplissage automatique de la qualité** depuis le stock
-- Enregistrement → passe la reine en `Vendue` dans le stock + synchronise la qualité
+- Enregistrement → passe la reine en `Vendue` + synchronise la qualité
 - Suppression → repasse la reine en `En stock`
-- Vue accordéon groupée par année
 
 ### 📊 Statistiques
-- Filtre par année (pills)
-- Tuiles : Productions · Reines produites · En stock · DCD (% perte) · Cellules implantées · Ratio couveuses · Introduites · Ratio introduites · Reines vendues · Taux d'écoulement · CA total · Prix moyen
-- Performances par souche ♀ (ratios + CA)
+- Filtre par année
+- Tuiles : Productions · Reines produites · En stock · DCD (% perte) · Cellules implantées · Ratios · Reines vendues · Taux d'écoulement · CA · Prix moyen
+- Performances par souche ♀
 - Ventes par qualité avec détail par souche
 
 ### 🔍 Recherche
-- Accessible via icône 🔍 dans la barre de navigation haute
-- Recherche par année (2 chiffres) + numéro
-- Affiche : **badge statut** · qualité · notes · production d'origine · vente associée
+- Icône 🔍 dans la barre haute
+- Affiche : badge statut · qualité · notes · production d'origine · vente associée
 
 ### ⚙️ Paramètres
-- Listes personnalisables : types de races, souches ♀, souches ⚦, qualités, numéros de reines
-- Prix de vente par défaut
-- Export JSON (sauvegarde complète incluant `reines`)
-- Import JSON (restauration complète + push Supabase)
-- Connexion Supabase (URL en lecture seule)
+- Listes personnalisables : types, souches ♀, souches ⚦, qualités, numéros de reines
+- Export / Import JSON (inclut `reines`)
 - Réinitialisation complète
-
----
-
-## Format des numéros de reines
-
-```
-AA-NN
-```
-- `AA` : année 2 chiffres (ex: `26` = 2026)
-- `NN` : numéro séquentiel 2+ chiffres (ex: `01`, `17`, `100`)
-
-Exemples : `26-01` · `26-17` · `25-42`
-
----
-
-## Format JSON de sauvegarde
-
-```json
-{
-  "_app": "Cobee Queens",
-  "_version": 2,
-  "_date": "2026-05-21T10:00:00.000Z",
-  "productions": [
-    {
-      "id": "1234567890",
-      "dateGreffage": "2026-04-15",
-      "dateIntro": "2026-04-25",
-      "dateCouveuse": "2026-04-21",
-      "type": "Buckfast",
-      "souche": "Apinov 040",
-      "pere": "Drone BSK-1",
-      "starter": "Ruche N°12",
-      "implantees": 20,
-      "couveuse": 15,
-      "introduites": 12,
-      "queens": ["26-01", "26-02", "26-03"],
-      "notes": ""
-    }
-  ],
-  "ventes": [
-    {
-      "id": "1234567891",
-      "date": "2026-05-10",
-      "acquereur": "Dupont Jean",
-      "reine": "26-01",
-      "prix": 45,
-      "qualite": "Bombasse"
-    }
-  ],
-  "reines": [
-    {
-      "id": "reine_2601_1234567890",
-      "numero": "26-01",
-      "production_id": "1234567890",
-      "type": "Buckfast",
-      "souche": "Apinov 040",
-      "pere": "Drone BSK-1",
-      "dateGreffage": "2026-04-15",
-      "statut": "Vendue",
-      "qualite": "Bombasse",
-      "notes": "",
-      "date_statut": "2026-05-10"
-    }
-  ],
-  "settings": {
-    "types": ["Buckfast", "Carnica"],
-    "souches": ["Apinov 040", "Apinov 159"],
-    "peres": ["Drone BSK-1", "Drone BSK-2"],
-    "queens": ["26-01", "26-02"],
-    "qualites": ["Bon démarrage", "Bonne ponte", "Très bonne", "Excellente", "Bombasse"],
-    "prixDefaut": 45
-  }
-}
-```
 
 ---
 
@@ -255,8 +178,13 @@ Exemples : `26-01` · `26-17` · `25-42`
 
 | Version | Date | Changements |
 |---|---|---|
-| **v3.0.0** | Mai 2026 | Nouveau module Stock de Reines (table `reines` Supabase), statuts En stock / Vendue / DCD, filtres année dans Stock et Ventes, pré-remplissage qualité dans les ventes, info reine dans formulaire vente, reines DCD exclues des ventes, migration automatique |
-| v2.1.x | Avr. 2026 | Migration Supabase compte payant, connexion Supabase dans paramètres, correction service worker |
-| v2.0.0 | 2026 | Migration localStorage → Supabase, sync arrière-plan, sauvegarde JSON |
-| v1.1 | Mars 2026 | Écran Recherche, filtre par année dans Stats, import Excel initial |
+| **v3.0.4** | Mai 2026 | Retrait logs debug · version propre production |
+| **v3.0.3** | Mai 2026 | Logs debug temporaires pour diagnostic Supabase |
+| **v3.0.2** | Mai 2026 | Correction écrasement `DB.reines` par le setInterval toutes les 60s |
+| **v3.0.1** | Mai 2026 | `migrateReines` async + `await Promise.all` · bouton ⟳ Migration · correction `updateReineField` statut |
+| **v3.0.0** | Mai 2026 | Nouveau module Stock de Reines · table `reines` Supabase · statuts En stock / Vendue / DCD · filtres année Stock et Ventes · pré-remplissage qualité · reines DCD exclues des ventes · migration automatique |
+| v2.2.0 | Mai 2026 | Onglet Stock (sans Supabase) · toggle année Productions et Ventes · icône 🔍 recherche dans nav |
+| v2.1.x | Avr. 2026 | Migration Supabase compte payant · connexion dans Paramètres · correction Service Worker |
+| v2.0.0 | 2026 | Migration localStorage → Supabase · sync arrière-plan · sauvegarde JSON |
+| v1.1 | Mars 2026 | Écran Recherche · filtre année Stats |
 | v1.0 | 2025 | Version initiale : productions, ventes, statistiques, paramètres |
