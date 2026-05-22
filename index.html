@@ -949,7 +949,10 @@ to   { opacity: 1; }
   <div class="screen" id="screen-stock">
     <div class="section-label" style="display:flex; justify-content:space-between; align-items:center; padding-right:14px;">
       <span>♛ Stock de Reines</span>
-      <div id="stock-year-filter" style="display:flex; gap:6px; flex-wrap:wrap;"></div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <div id="stock-year-filter" style="display:flex; gap:6px; flex-wrap:wrap;"></div>
+        <button onclick="forceMigrateReines()" title="Reconstruire le stock depuis les productions" style="background:transparent; border:1px solid var(--card-border); color:var(--text-muted); border-radius:12px; padding:3px 10px; font-size:11px; cursor:pointer;">⟳ Migration</button>
+      </div>
     </div>
     <div class="stock-filters" id="stock-filters"></div>
     <div id="stock-list"></div>
@@ -2332,10 +2335,11 @@ document.addEventListener('DOMContentLoaded', function() {
 // ── Supabase CRUD reines ──
 async function saveReineToSupabase(reine) {
   try {
+    const row = reineToRow(reine);
     await sbFetch('reines', {
       method: 'POST',
       prefer: 'resolution=merge-duplicates',
-      body: JSON.stringify(reineToRow(reine))
+      body: JSON.stringify(row)
     });
   } catch(e) { console.error('Supabase save reine error:', e); }
 }
@@ -2475,6 +2479,14 @@ function setStockYear(y) {
   renderStock();
 }
 
+function forceMigrateReines() {
+  DB.reines = [];
+  saveDBLocal(DB);
+  const migrated = migrateReines();
+  toast(migrated > 0 ? `✅ ${migrated} reines migrées` : '⚠️ Aucune reine à migrer');
+  renderStock();
+}
+
 function renderStock() {
   if(!DB.reines) DB.reines = [];
 
@@ -2536,7 +2548,7 @@ function renderStock() {
     <div class="stock-reine-card ${statutClass}" id="srcard-${r.id}">
       <div class="stock-reine-top">
         <span class="stock-reine-num">♛ ${r.numero}</span>
-        <select class="stock-field-sel" style="max-width:110px; font-weight:700; font-size:12px;" onchange="updateReineField('${r.id}','statut',this.value);renderStock();">
+        <select class="stock-field-sel" style="max-width:110px; font-weight:700; font-size:12px;" onchange="updateReineField('${r.id}','statut',this.value)">
           <option value="En stock" ${r.statut==='En stock'?'selected':''}>♛ En stock</option>
           <option value="DCD" ${r.statut==='DCD'?'selected':''}>✝ DCD</option>
           <option value="Vendue" ${r.statut==='Vendue'?'selected':''} ${r.statut!=='Vendue'?'disabled':''}>✅ Vendue</option>
@@ -2585,7 +2597,12 @@ function updateReineField(id, field, value) {
   const reine = DB.reines.find(r => r.id === id);
   if(!reine) return;
   reine[field] = value;
+  if(field === 'statut') {
+    reine.date_statut = new Date().toISOString().split('T')[0];
+  }
   saveDB(DB, { reine: reine, settings: false });
+  // Différer le re-rendu pour laisser la sauvegarde se faire
+  if(field === 'statut') setTimeout(() => renderStock(), 50);
 }
 
 // ══════════════════════════════════════════════════
