@@ -26,7 +26,7 @@ git push
 **Hébergement** : Supabase auto-hébergé (VPS KGB), migré depuis le projet cloud `aatbpkuuwpoareykftpg` le 2026-11-06
 **URL** : `https://api.kgb-sofware.com`
 **Schéma Postgres** : `cobeequeens` (en-têtes `Accept-Profile` / `Content-Profile` envoyés par `sbFetch`)
-**RLS** : activé · politiques `anon` ALL sur `productions`, `ventes`, `settings` · aucune politique sur `reines`
+**RLS** : activé · politiques `anon` ALL sur `productions`, `ventes`, `settings`, `reines` (politique `reines` rétablie le 2026-11-06)
 
 ### Tables
 
