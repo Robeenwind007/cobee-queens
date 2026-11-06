@@ -7,7 +7,8 @@ Déployée sur GitHub Pages · Backend Supabase · Single-file `index.html`
 
 ## Déploiement
 
-**URL** : `https://robeenwind007.github.io/cobee-queens/`
+**URL** : `https://cobeequeens.kgb-sofware.com` (VPS KGB, Caddy) — GitHub Pages `https://robeenwind007.github.io/cobee-queens/` encore actif pendant la transition
+**Déploiement VPS** : workflow `.github/workflows/deploy.yml` (rsync vers `/srv/kgb/sites/cobeequeens/`, utilisateur `deploy`) à chaque push sur `main` — secrets `VPS_HOST`, `VPS_SSH_KEY`, `VPS_KNOWN_HOSTS`
 **Repo** : `Robeenwind007/cobee-queens`
 
 ```bash
